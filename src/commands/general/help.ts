@@ -5,11 +5,11 @@ import { embed_color } from "../../config";
 export default new Command({
 	data: {
 		name: "help",
-		description: "Muestro mis comandos disponibles 2.0 :'v asdf",
+		description: "Muestro mis comandos disponibles",
 		options: [
 			{
 				name: "comando",
-				description: "Te mostraré la información y ayuda de ese comando aaaaaaaaa ASDSFD",
+				description: "Te mostraré la información y ayuda de ese comando",
 				type: "STRING",
 			},
 		],
