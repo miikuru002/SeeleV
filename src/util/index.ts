@@ -1,1 +1,1 @@
-export { ram, getTimeFromTimezone, getBranch } from "./misc";
+export { ram, getTimeFromTimezone } from "./misc";

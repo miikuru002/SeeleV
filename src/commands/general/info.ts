@@ -7,7 +7,9 @@ import {
 	developers,
 	embed_color,
 } from "../../config";
-import { getBranch, ram } from "../../util";
+import { ram } from "../../util";
+import moment from "moment";
+import "moment-duration-format";
 
 export default new Command({
 	data: {
@@ -136,16 +138,17 @@ export default new Command({
 
 			case "bot": {
 				const devs: string[] = [];
-
+				const online = moment.duration(client.uptime).format(" D [dias], H [hrs], m [mins], s [secs]");
+				
 				for (const dev of developers) {
 					const user = await client.users.fetch(dev);
 					devs.push(`${user.username}#${user.discriminator}`);
 				}
 
 				const bt_embed = new MessageEmbed()
-					.setTitle("Sobre mí >/./<")
+					.setTitle(":cherry_blossom: Sobre mí >/./<")
 					.setDescription(
-						"Hola!, soy un bot multifuncional con el propósito de serte de utilidad en cualquier momento, aún estoy pequeña y es por ello que si observas algún error o sugerencia no dudes en reportarlo en mi servidor o creador. Próximamente tendré más funciones!"
+						"Hola!, soy una bot multifuncional con el propósito de serte de utilidad en cualquier momento, aún soy pequeña y es por ello que si observas algún error o sugerencia no dudes en reportarlo en mi servidor o creador. Próximamente tendré más funciones!"
 					)
 					.setThumbnail(client.user!.avatarURL()!)
 					.addField(
@@ -159,7 +162,7 @@ export default new Command({
 					)
 					.addField(
 						"Información técnica:",
-						`Versión: \`${bot_version}\`\nLibrería: Djs v13\nRama actual: \`${await getBranch()}\`Ram: \`${ram} MB\``,
+						`Versión: \`${bot_version}\`\nLibrería: Djs v13\nRam: \`${ram} MB\`\nOnline: ${online}`,
 						true
 					)
 					.addField(

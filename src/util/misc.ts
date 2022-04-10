@@ -1,6 +1,3 @@
-import { exec } from "child_process";
-import Logger from "./Logger";
-
 /**
  * Obtiene la cantidad de memoria usada
  */
@@ -26,22 +23,3 @@ export const getTimeFromTimezone = (timezone: number): string => {
 
 	return nd.toLocaleString(); //retorna la fecha y hora como string
 };
-
-/**
- * Obtiene el branch actual que ejecuta el bot
- * @returns El branch
- * @source https://stackoverflow.com/questions/62225567/get-current-git-branch-with-node-js
- */
-export const getBranch = () =>
-	new Promise((resolve, reject) => {
-		exec("git branch --show-current", (err, stdout, stderr) => {
-			if (err) {
-				Logger.error(`getBranch Error: ${err}`);
-				reject(`getBranch Error: ${err}`);
-			}
-
-			if (typeof stdout === "string") {
-				resolve(stdout);
-			}
-		});
-	});
