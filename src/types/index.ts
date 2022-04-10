@@ -6,3 +6,4 @@ export {
 	ICommand
 } from "./Command";
 export { IClima, ILocation } from "./misc";
+export { IMessagesLogs } from "./Schemas";
