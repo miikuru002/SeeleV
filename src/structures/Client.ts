@@ -19,7 +19,7 @@ config();
 const globPromise = promisify(glob);
 
 //obtiene las variables de entorno (desestructuracion)
-const { BOT_TOKEN, CLIENT_ID, GUILD_ID } = process.env; 
+const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT } = process.env; 
 
 /**
  * Clase del bot, este hereda de Client (se crea una nueva instancia del cliente)
@@ -67,7 +67,7 @@ export class SeeleV extends Client {
 	 * Se encarga de verificar que las variables de entorno estén definidas
 	 */
 	private checkEnvironmentVars(): void {
-		if (!BOT_TOKEN || !CLIENT_ID || !GUILD_ID) { //si no están definidas las variables
+		if (!BOT_TOKEN || !CLIENT_ID || !GUILD_ID || !ENVIRONMENT) { //si no están definidas las variables
 			Logger.error("¡Faltan configurar las variables de entorno!. ¿Creó el archivo .env con las variables?");
 			process.exit(1);
 		}
