@@ -16,6 +16,8 @@ export default new Event({
 				return await interaction.reply("Uh oh... usaste un comando que no existe o aún no está implementado ><, con el comando `/help` podrás ver mis comandos disponibles!");
 
 			try {
+				if (!(await command.canExecute(interaction))) return;
+
 				command.execute({
 					args: interaction.options as CommandInteractionOptionResolver,
 					client: seelev,

@@ -1,7 +1,10 @@
 import {
 	ChatInputApplicationCommandData,
+	Collection,
+	CommandInteraction,
 	PermissionResolvable,
 } from "discord.js";
+import { developers } from "../config";
 import { IExecuteOptions, ICommand } from "../types";
 
 /**
@@ -15,6 +18,7 @@ export class Command {
 	public devsOnly: boolean;
 	public example: string;
 	public execute: (options: IExecuteOptions) => any;
+	private cooldowns: Collection<string, number>;
 
 	/**
 	 * Inicializa los atributos del comando
@@ -22,13 +26,72 @@ export class Command {
 	 */
 	constructor(properties: ICommand) {
 		//!el operador "??" solo evalua si la variable es null o undefined
-		//!el operador "!!" castea la variable a boolean
 		this.data = properties.data;
 		this.userPermissions = properties.userPermissions ?? [];
-		this.cooldown = properties.cooldown ?? 2;
+		this.cooldown = properties.cooldown ?? 3;
 		this.enabled = properties.enabled ?? true;
 		this.devsOnly = properties.devsOnly ?? false;
 		this.example = properties.example ?? `/${this.data.name}`;
 		this.execute = properties.execute;
+
+		//colección de cooldowns
+		this.cooldowns = new Collection();
+	}
+
+	/**
+	 * Verifica si el comando está en enfriamiento para el usuario
+	 * @param interaction La interacción
+	 * @returns Si está o no en enfriamiento
+	 */
+	private checkCooldowns(interaction: CommandInteraction): boolean {
+		if (this.cooldowns.has(interaction.user.id)) { 
+			return true;
+		}
+
+		this.cooldowns.set(interaction.user.id, Date.now() + this.cooldown * 1_000);
+
+		setTimeout(() => {
+			this.cooldowns.delete(interaction.user.id);
+		}, this.cooldown * 1_000);
+
+		return false;
+	}
+
+	/**
+	 * Verifica si se puede ejecutar el comando (cooldown)
+	 * @param interaction La interacción
+	 * @returns Si se puede ejecutar el comando o no, y un mensaje en Discord
+	 */
+	public async canExecute(interaction: CommandInteraction): Promise<boolean> {
+		//si el comando está en cooldown y el que lo usa no es un desarrollador
+		if (this.checkCooldowns(interaction) &&	!developers.includes(interaction.user.id)) {
+			const leftTime = (this.cooldowns.get(interaction.user.id)! - Date.now()) / 1_000;
+
+			await interaction.reply(
+				`**:snowflake: | El comando está en enfriamiento, por favor espera:** \`${leftTime.toFixed(2)} segundos\``
+			);
+
+			return false;
+		}
+
+		//si el comando no está activado y el que lo usa no es un desarrollador
+		if (!this.enabled && !developers.includes(interaction.user.id)) {
+			await interaction.reply(
+				"**:tools: | Este comando está en mantenimiento**"
+			);
+
+			return false;
+		}
+
+		//si el comando es solo para desarrolladores y el que lo usa no es desarrollador
+		if (this.devsOnly && !developers.includes(interaction.user.id)) {
+			await interaction.reply(
+				"**:gear: | Este comando es solo para desarrolladores**"
+			);
+
+			return false;
+		}
+
+		return true;
 	}
 }

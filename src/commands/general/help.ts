@@ -14,7 +14,6 @@ export default new Command({
 			},
 		],
 	},
-	cooldown: 10,
 	example: "/ping",
 	execute: async ({ interaction, args, client }) => {
 		const com = args.getString("comando");

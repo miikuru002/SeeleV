@@ -40,7 +40,6 @@ export default new Command({
 			},
 		],
 	},
-	cooldown: 10,
 	example: "/info bot",
 	execute: async ({ interaction, args, client }) => {
 		switch (args.getSubcommand()) {
