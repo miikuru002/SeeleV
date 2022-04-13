@@ -9,7 +9,6 @@ import { Command, Event } from "../structures";
 import { bot_version } from "../config";
 import { promisify } from "util";
 import { config } from "dotenv";
-import { connect } from "mongoose";
 import glob from "glob";
 import Logger from "../util/Logger";
 
@@ -43,7 +42,7 @@ export class SeeleV extends Client {
 	public start(): void {
 		this.printGreetMessage();
 		this.checkEnvironmentVars();
-		this.connectDatabase();
+		//this.connectDatabase();
 		this.loadCommands();
 		this.loadEvents();
 
@@ -77,14 +76,14 @@ export class SeeleV extends Client {
 	/**
 	 * Realiza la conexión a la base de datos MongoDB
 	 */
-	private async connectDatabase(): Promise<void> {
-		try {
-			connect(`${process.env.MONGODB_URL}`);
-			Logger.success("MongoDB >> Conectado a la BD");
-		} catch (err) {
-			Logger.error(`MongoDB >> Ha ocurrido un error en la conexión ${err}`);
-		}
-	}
+	// private async connectDatabase(): Promise<void> {
+	// 	try {
+	// 		mongoose.connect(`${process.env.MONGODB_URL}`);
+	// 		Logger.success("MongoDB >> Conectado a la BD");
+	// 	} catch (err) {
+	// 		Logger.error(`MongoDB >> Ha ocurrido un error en la conexión ${err}`);
+	// 	}
+	// }
 
 	/**
 	 * Hace las importaciones dinámicas según la ruta especificada
