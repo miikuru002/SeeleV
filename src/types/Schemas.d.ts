@@ -3,7 +3,7 @@
  */
 import { Document } from "mongoose";
 
-export interface IMessagesLogs extends Document {
+export interface IBienvenidas extends Document {
 	guildID: string;
 	channelID: string;
 }

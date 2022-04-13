@@ -12,3 +12,8 @@ process.on("uncaughtException", (err) => {
 	Logger.error(`uncaughtException -> ${err}`);
 	process.exit(1);
 });
+
+process.on("unhandledRejection", (err) => {
+	process.exitCode = 1;
+	Logger.error(`unhandled promise rejection -> ${err}`);	
+});
