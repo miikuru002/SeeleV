@@ -1,12 +1,12 @@
-import { Schema, Model, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import { IMessagesLogs } from "../types";
 
-const MessagesLogsSchema: Schema<IMessagesLogs> = new Schema({
-	guildID: { type: String },
-	channelID: { type: String },
+const MessagesLogsSchema = new Schema<IMessagesLogs>({
+	guildID: { type: String, required: true },
+	channelID: { type: String, required: true },
 });
 
-export const Leaves: Model<IMessagesLogs> = model(
+export const MessagesLogs = model<IMessagesLogs>(
 	"logs_messages",
 	MessagesLogsSchema
 );
