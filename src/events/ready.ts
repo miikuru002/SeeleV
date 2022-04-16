@@ -6,12 +6,12 @@ import Logger from "../util/Logger";
 export default new Event({
 	name: "ready",
 	once: true,
-	execute: async (interaction) => {
+	execute: async (client) => {
 		const status: PresenceStatusData =
 			process.env.ENVIRONMENT === "prod" ? "online" : "idle";
 		
 		//setea el estado del bot
-		interaction.user.setPresence({
+		client.user.setPresence({
 			status: status,
 			activities: [
 				{
@@ -21,6 +21,6 @@ export default new Event({
 			],
 		});
 
-		Logger.log(`Inicio de sesión correcto. ${interaction.user.username} online`);
+		Logger.log(`Inicio de sesión correcto. ${client.user.username} online`);
 	},
 });

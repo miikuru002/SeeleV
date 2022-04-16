@@ -1,1 +1,1 @@
-export { MessagesLogs } from "./bienvenidas";
+export { Bienvenidas } from "./bienvenidas";

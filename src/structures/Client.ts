@@ -20,7 +20,7 @@ config();
 const globPromise = promisify(glob);
 
 //obtiene las variables de entorno (desestructuracion)
-const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT } = process.env; 
+const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT, MONGODB_URL } = process.env; 
 
 /**
  * Clase del bot, este hereda de Client (se crea una nueva instancia del cliente)
@@ -31,7 +31,7 @@ export class SeeleV extends Client {
 
 	constructor() {
 		//llama al constructor de la clase padre Client
-		super({ intents: ["GUILDS"] });
+		super({ intents: ["GUILDS", "GUILD_MEMBERS"] });
 
 		this.commands = new Collection();
 		this.events = new Collection();
@@ -68,7 +68,7 @@ export class SeeleV extends Client {
 	 * Se encarga de verificar que las variables de entorno estén definidas
 	 */
 	private checkEnvironmentVars(): void {
-		if (!BOT_TOKEN || !CLIENT_ID || !GUILD_ID || !ENVIRONMENT) { //si no están definidas las variables
+		if (!BOT_TOKEN || !CLIENT_ID || !GUILD_ID || !ENVIRONMENT || !MONGODB_URL) { //si no están definidas las variables
 			Logger.error("¡Faltan configurar las variables de entorno!. ¿Creó el archivo .env con las variables?");
 			process.exit(1);
 		}
@@ -122,10 +122,12 @@ export class SeeleV extends Client {
 		Logger.success("Comandos cargados");
 
 		this.on("ready", () => {
+			const guild_id = ENVIRONMENT === "dev" ? GUILD_ID : undefined;
+
 			this.registerCommands(
 				{
 					commands: slashCommands,
-					guildID: GUILD_ID
+					guildID: guild_id
 				}
 			);
 		});
