@@ -6,4 +6,4 @@ export {
 	ICommand
 } from "./Command";
 export { IClima, ILocation } from "./misc";
-export { IBienvenidas } from "./Schemas";
+export { IBienvenidas, IRecordatorios } from "./Schemas";

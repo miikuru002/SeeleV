@@ -8,3 +8,10 @@ export interface IBienvenidas extends Document {
 	channelID: string;
 	imageURL: string;
 }
+
+export interface IRecordatorios extends Document {
+	channelID: string;
+	userID: string;
+	message: string;
+	time: number;
+}
