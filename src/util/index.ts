@@ -1,1 +1,1 @@
-export { ram, getTimeFromTimezone } from "./misc";
+export { ram, getTimeFromTimezone, isImage } from "./misc";

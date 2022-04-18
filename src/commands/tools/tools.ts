@@ -6,6 +6,7 @@ import calc from "math-expression-evaluator";
 import { IClima } from "../../types";
 import { getTimeFromTimezone } from "../../util";
 import Logger from "../../util/Logger";
+import { Recordatorios } from "../../models";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const weather = require("weather-js");
 
@@ -85,6 +86,45 @@ export default new Command({
 				description: "Muestro mi latencia actual y la del API también",
 				type: "SUB_COMMAND",
 			},
+			{
+				name: "recordatorio",
+				description: "Te recordaré algo en el tiempo que me indiques",
+				type: "SUB_COMMAND",
+				options: [
+					{
+						name: "mensaje",
+						description: "Lo que quieres que te recuerde",
+						required: true,
+						type: "STRING",
+					},
+					{
+						name: "tiempo",
+						description: "En cuanto tiempo te lo recordaré",
+						required: true,
+						type: "INTEGER",
+					},
+					{
+						name: "unidad",
+						description: "La unidad del tiempo",
+						required: true,
+						choices: [
+							{
+								name: "minuto(s)",
+								value: "m",
+							},
+							{
+								name: "hora(s)",
+								value: "h",
+							},
+							{
+								name: "día(s)",
+								value: "d",
+							},
+						],
+						type: "STRING",
+					}
+				],
+			}
 		],
 	},
 	cooldown: 10,
@@ -286,6 +326,37 @@ export default new Command({
 				return await interaction
 					.reply({ embeds: [ping_embed] })
 					.catch((e) => Logger.error(`PROMISE_ERR -> ${e}`));
+			}
+
+			case "recordatorio": {
+				const msg = args.getString("mensaje", true); //obtiene el mensaje
+				const tmp = args.getInteger("tiempo", true); //obtiene el tiempo
+				const unit = args.getString("unidad", true); //obtiene la unidad
+				let tiempo = 0;
+
+				switch (unit) {
+					case "m": tiempo = tmp * 60_000;	break;
+					case "h": tiempo = tmp * 3_600_000;	break;
+					case "d": tiempo = tmp * 86_400_000;	break;
+				}
+
+				//guarda el recordatorio en la BD
+				const recordatorio = new Recordatorios({
+					channelID: interaction.channel?.id,
+					userID: interaction.user.id,
+					message: msg,
+					time: Date.now() + tiempo
+				});
+				await recordatorio.save();
+				
+				return await interaction.reply({
+					embeds: [
+						new MessageEmbed()
+							.setColor(embed_color)
+							.setTitle(":clock1: Recordatorios:")
+							.setDescription(`Acabas de establecer un recordatorio en \`${tmp}${unit}\``),
+					],
+				});
 			}
 
 			default:

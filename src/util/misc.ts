@@ -23,3 +23,20 @@ export const getTimeFromTimezone = (timezone: number): string => {
 
 	return nd.toLocaleString(); //retorna la fecha y hora como string
 };
+
+/**
+ * Valida si la URL brindada corresponde a una imagen
+ * @param url La URL a evaluar
+ * @returns Si es válido o no
+ * @source https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
+ */
+export const isImage = (url: string): boolean => {
+	const expr = /(http)?s?:?(\/\/[^"']*\.(?:png|jpg|jpeg|gif|png|webp))/;
+	const regex = new RegExp(expr);
+
+	if (url.match(regex)) {
+		return true;
+	}
+
+	return false;
+};
