@@ -31,7 +31,7 @@ export class SeeleV extends Client {
 
 	constructor() {
 		//llama al constructor de la clase padre Client
-		super({ intents: ["GUILDS", "GUILD_MEMBERS"] });
+		super({ intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGES"] });
 
 		this.commands = new Collection();
 		this.events = new Collection();

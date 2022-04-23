@@ -30,11 +30,14 @@
   },
   "homepage": "https://github.com/kurumii002/SeeleV#readme",
   "dependencies": {
+    "@vitalets/google-translate-api": "^8.0.0",
     "axios": "^0.26.1",
     "chalk": "^4.1.2",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "glob": "^7.2.0",
+    "humanize-duration": "^3.27.1",
+    "mal-scraper": "^2.11.4",
     "math-expression-evaluator": "^1.3.14",
     "moment": "^2.29.2",
     "moment-duration-format": "^2.3.2",
@@ -44,6 +47,7 @@
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
+    "@types/humanize-duration": "^3.27.1",
     "@types/math-expression-evaluator": "^1.2.2",
     "@types/moment-duration-format": "^2.2.3",
     "@typescript-eslint/eslint-plugin": "^5.17.0",

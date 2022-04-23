@@ -2,6 +2,7 @@ import {
 	ChatInputApplicationCommandData,
 	Collection,
 	CommandInteraction,
+	GuildMember,
 	PermissionResolvable,
 } from "discord.js";
 import { developers } from "../config";
@@ -87,6 +88,20 @@ export class Command {
 		if (this.devsOnly && !developers.includes(interaction.user.id)) {
 			await interaction.reply(
 				"**:gear: | Este comando es solo para desarrolladores**"
+			);
+
+			return false;
+		}
+
+		//verifica si el usuario que quiera ejecutar el comando tiene los permisos a nivel del SERVIDOR
+		const user = interaction.member as GuildMember;
+		if (
+			this.userPermissions[0] &&
+			!this.userPermissions.some((x) => user.permissions.has(x)) /*&&
+			!developers.includes(interaction.user.id)*/
+		) {
+			await interaction.reply(
+				`**:no_entry_sign: | Necesitas estos permisos:** \`${this.userPermissions.join(", ")}\``
 			);
 
 			return false;

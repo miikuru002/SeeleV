@@ -15,3 +15,9 @@ export interface IRecordatorios extends Document {
 	message: string;
 	time: number;
 }
+
+export interface IAfk extends Document {
+	userID: string;
+	reason: string;
+	time: number;
+}

@@ -1,3 +1,7 @@
+import trans from "@vitalets/google-translate-api";
+import Logger from "./Logger";
+import humanizeDuration from "humanize-duration";
+
 /**
  * Obtiene la cantidad de memoria usada
  */
@@ -39,4 +43,38 @@ export const isImage = (url: string): boolean => {
 	}
 
 	return false;
+};
+
+/**
+ * Traduce un texto de cualquier idioma hacia otro
+ * @param message El mensaje a traducir
+ * @param lang El idioma al que se quiere traducir
+ * @returns Mensaje traducido
+ */
+export const translate = async (message: string, lang: string) => {
+	try {
+		const res = await trans(message, { to: lang });
+		return res.text;
+
+	} catch (error) {
+		Logger.error(error);
+	}
+};
+
+/**
+ * Obtiene el tiempo AFK transcurrido en un formato legible
+ * @param time Momento en el que el usuario usó el comando AFK
+ * @returns El tiempo que estuvo AFK
+ */
+export const getElapsedTime = (time: number) => {
+	//al tiempo actual (en ms) se le resta el momento donde el usuario establece su estado AFK
+	const elapsed_time = humanizeDuration(Date.now() - time, {
+		language: "es",				
+		maxDecimalPoints: 1,
+		largest: 2,
+		conjunction: " y ",
+		serialComma: false,
+	});
+	
+	return elapsed_time;
 };

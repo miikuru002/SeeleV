@@ -69,6 +69,19 @@ export default new Command({
 				],
 			},
 			{
+				name: "elegir",
+				description: "Escojo al azar una opción de un grupo de opciones",
+				type: "SUB_COMMAND",
+				options: [
+					{
+						name: "opciones",
+						description: "Ingresa las opciones a escojer separadas por una coma (Ejm: rojo, azul, amarillo)",
+						required: true,
+						type: "STRING",
+					},
+				],
+			},
+			{
 				name: "emoji",
 				description: "Muestro un emoji personalizado en tamaño grande",
 				type: "SUB_COMMAND",
@@ -85,6 +98,27 @@ export default new Command({
 				name: "ping",
 				description: "Muestro mi latencia actual y la del API también",
 				type: "SUB_COMMAND",
+			},
+			{
+				name: "random",
+				description: "Muestro un número aleatorio que esté en el intervalo donde me especifiques",
+				type: "SUB_COMMAND",
+				options: [
+					{
+						name: "desde",
+						description: "El límite inferior del intervalo (este también se tomará en cuenta)",
+						required: true,
+						type: "INTEGER",
+						minValue: 0
+					},
+					{
+						name: "hasta",
+						description: "El límite superior del intervalo (este también se tomará en cuenta)",
+						required: true,
+						type: "INTEGER",
+						maxValue: 100_000
+					},
+				],
 			},
 			{
 				name: "recordatorio",
@@ -124,7 +158,12 @@ export default new Command({
 						type: "STRING",
 					}
 				],
-			}
+			},
+			{
+				name: "server_icon",
+				description: "Muestro el ícono de este servidor",
+				type: "SUB_COMMAND",
+			},
 		],
 	},
 	cooldown: 10,
@@ -149,8 +188,7 @@ export default new Command({
 							`Avatar de: ${user.tag}!\nMostrando en tamaño: ` + "`512x512`"
 						)
 						.setImage(`${user.displayAvatarURL({ dynamic: true })}`)
-						.setColor(embed_color)
-						.setTimestamp(new Date());
+						.setColor(embed_color);
 
 					return await interaction.reply({
 						embeds: [av_embed],
@@ -173,8 +211,7 @@ export default new Command({
 					.setImage(
 						`${interaction.user.displayAvatarURL({ dynamic: true, size: 512 })}`
 					)
-					.setColor(embed_color)
-					.setTimestamp(new Date());
+					.setColor(embed_color);
 
 				return await interaction.reply({
 					embeds: [av_embed],
@@ -223,8 +260,7 @@ export default new Command({
 							const err_embed = new MessageEmbed()
 								.setTitle(":white_sun_small_cloud: Clima:")
 								.setDescription("No pude encontrar esa ciudad...")
-								.setColor(embed_color)
-								.setTimestamp(new Date());
+								.setColor(embed_color);
 
 							return await interaction.editReply({ embeds: [err_embed] });
 						}
@@ -263,6 +299,28 @@ export default new Command({
 					}
 				);
 				break;
+			}
+
+			case "elegir": {
+				const grupo_opciones = args.getString("opciones", true);
+				const opciones = grupo_opciones.split(", "); 
+				const opcion_elegida = opciones[Math.floor(Math.random() * opciones.length)];
+					
+				if (!opciones[1]) { //si en el array de opciones solo hay 1 item
+					return interaction.reply({
+						content: 
+							"**:x: | Necesito como mínimo 2 opciones, no olvides que las comas `, ` son obligatorias para separar dichas opciones ><...**",
+					});
+				}
+				
+				return interaction.reply({
+					embeds: [
+						new MessageEmbed()
+							.setTitle(":ferris_wheel: Escoger al azar:")
+							.setDescription(`La opción que elijo es... \`${opcion_elegida}\`!`)
+							.setColor(embed_color)
+					],
+				});
 			}
 
 			case "emoji": {
@@ -328,6 +386,27 @@ export default new Command({
 					.catch((e) => Logger.error(`PROMISE_ERR -> ${e}`));
 			}
 
+			case "random": {
+				const lim_inf = args.getInteger("desde", true);
+				const lim_sup = args.getInteger("hasta", true);
+				
+				if (lim_inf >= lim_sup) {
+					return await interaction.reply({
+						content: "**:x: | El límite inferior no puede ser mayor o igual que el superior...**",
+					});
+				}
+
+				const random = Math.floor(Math.random() * (lim_sup - lim_inf) + lim_inf) + 1;
+				return await interaction.reply({
+					embeds: [
+						new MessageEmbed()
+							.setTitle(":game_die: Número aleatorio:")
+							.setColor(embed_color)
+							.setDescription(`El número que elijo es... \`${random}\`!`)
+					],
+				});
+			}
+
 			case "recordatorio": {
 				const msg = args.getString("mensaje", true); //obtiene el mensaje
 				const tmp = args.getInteger("tiempo", true); //obtiene el tiempo
@@ -356,6 +435,37 @@ export default new Command({
 							.setTitle(":clock1: Recordatorios:")
 							.setDescription(`Acabas de establecer un recordatorio en \`${tmp}${unit}\``),
 					],
+				});
+			}
+
+			case "server_icon": {
+				if (interaction.guild?.iconURL({ dynamic: true, size: 512 })) { //si el servidor tiene un ícono
+					const row = new MessageActionRow()
+						.addComponents( //agrega un botón
+							new MessageButton()
+								.setURL(
+									interaction.guild?.iconURL({ dynamic: true, size: 4096 }) ?? "xd"
+								)
+								.setLabel("Ver imagen completa")
+								.setStyle("LINK")
+						);
+
+					return await interaction.reply({
+						embeds: [
+							new MessageEmbed()
+								.setColor(embed_color)
+								.setTitle(":night_with_stars: Ícono del servidor:")
+								.setDescription(`Ícono de: **${interaction.guild?.name}**\nMostrando en tamaño: \`512x512\``)
+								.setImage(
+									`${interaction.guild?.iconURL({ dynamic: true, size: 512 })}`
+								)
+						],
+						components: [row],
+					});
+				}
+
+				return await interaction.reply({
+					content: `**:x: | ___${interaction.guild?.name}___ no tiene un ícono para mostrarlo... :(**`,
 				});
 			}
 

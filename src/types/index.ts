@@ -3,7 +3,7 @@ export {
 	IRegisterCommandOptions,
 	IExtendedInteraction,
 	IExecuteOptions,
-	ICommand
+	ICommand,
 } from "./Command";
 export { IClima, ILocation } from "./misc";
-export { IBienvenidas, IRecordatorios } from "./Schemas";
+export { IBienvenidas, IRecordatorios, IAfk } from "./Schemas";

@@ -71,13 +71,12 @@ export default new Command({
 
 				const us_embed = new MessageEmbed()
 					.setTitle(":information_source: Información de usuario:")
-					.setColor(embed_color)
+					.setColor(member?.displayHexColor ?? embed_color)
 					.setThumbnail(avatar)
 					.addField("ID:", `\`${user_id}\``, true)
 					.addField("Nombre de usuario:", username, true)
 					.addField("Apodo:", nickname, true)
 					.addField("Cuenta creada:", `\`${cuenta_creada}\``, true)
-					.addField("Fecha de ingreso:", `\`${fecha_ingreso}\``, true)
 					.addField("Fecha de ingreso:", `\`${fecha_ingreso}\``, true)
 					.addField("Roles:", `${roles}`)
 					.setFooter({text: "Si deseas ver el avatar en tamaño grande escribe: /tools avatar"});
@@ -130,7 +129,8 @@ export default new Command({
 						true
 					)
 					.setColor(embed_color)
-					.setThumbnail(server.iconURL()!);
+					.setThumbnail(server.iconURL()!)
+					.setFooter({text: "Si deseas ver el ícono del servidor en tamaño grande escribe: /tools server_icon"});
 
 				return await interaction.reply({ embeds: [sv_embed] });
 			}

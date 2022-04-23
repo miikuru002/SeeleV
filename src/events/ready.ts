@@ -17,7 +17,7 @@ export default new Event({
 			activities: [
 				{
 					type: "WATCHING", //actividad
-					name: `v${bot_version}`, //estado del bot
+					name: `/help | v${bot_version}`, //estado del bot
 				},
 			],
 		});
