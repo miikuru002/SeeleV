@@ -3,6 +3,7 @@ import { Guild, MessageEmbed } from "discord.js";
 import {
 	bot_github,
 	bot_invitation,
+	bot_server,
 	bot_version,
 	developers,
 	embed_color,
@@ -166,7 +167,7 @@ export default new Command({
 					)
 					.addField(
 						"Enlaces útiles:",
-						`[Invítame a un servidor](${bot_invitation})\n[Mi servidor de soporte]({})\n[Mi página web]({})\n[Mi código fuente](${bot_github})`,
+						`[Invítame a un servidor](${bot_invitation})\n[Mi servidor de soporte](${bot_server})\n[Mi página web]({})\n[Mi código fuente](${bot_github})`,
 						true
 					)
 					.setColor(embed_color);
