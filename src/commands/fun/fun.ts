@@ -42,6 +42,11 @@ export default new Command({
 				],
 			},
 			{
+				name: "lanzar_dado",
+				description: "Lanzas un dado de 6 lados",
+				type: "SUB_COMMAND",
+			},
+			{
 				name: "say",
 				description: "Repito lo que me digas",
 				type: "SUB_COMMAND",
@@ -206,6 +211,17 @@ export default new Command({
 
 					return await interaction.editReply({ embeds: [ani_embed] });
 				}
+			}
+
+			case "lanzar_dado": {
+				const num = Math.floor(Math.random() * 6 + 1);
+
+				const dado_embed = new MessageEmbed()
+					.setTitle(":game_die: Tiro de dado:")
+					.setDescription(`**${interaction.user.username}**, obtuviste un: \`${num}\`!`)
+					.setColor(embed_color);
+				
+				return await interaction.reply({ embeds: [dado_embed] });
 			}
 
 			case "say": {

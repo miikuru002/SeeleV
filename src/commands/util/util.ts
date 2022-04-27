@@ -400,7 +400,7 @@ export default new Command({
 				return await interaction.reply({
 					embeds: [
 						new MessageEmbed()
-							.setTitle(":game_die: Número aleatorio:")
+							.setTitle(":1234: Número aleatorio:")
 							.setColor(embed_color)
 							.setDescription(`El número que elijo es... \`${random}\`!`)
 					],
