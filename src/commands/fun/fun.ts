@@ -23,6 +23,38 @@ export default new Command({
 					},
 				],
 			},
+			{
+				name: "say",
+				description: "Repito lo que me digas",
+				type: "SUB_COMMAND",
+				options: [
+					{
+						name: "mensaje",
+						description: "Lo que quieres que repita",
+						required: true,
+						type: "STRING",
+					},
+				],
+			},
+			{
+				name: "say_sus",
+				description: "Muestro una imagen como so fuera una captura de algo que dijo un usuario",
+				type: "SUB_COMMAND",
+				options: [
+					{
+						name: "usuario",
+						description: "El usuario que se mostrará",
+						required: true,
+						type: "USER",
+					},
+					{
+						name: "mensaje",
+						description: "El mensaje que dirá ese usuario (solo texto, no emojis)",
+						required: true,
+						type: "STRING",
+					},
+				],
+			},
 		],
 	},
 	cooldown: 10,
