@@ -12,7 +12,7 @@ const weather = require("weather-js");
 
 export default new Command({
 	data: {
-		name: "tools",
+		name: "util",
 		description: "Colección de diversos subcomandos útiles ⚒️",
 		options: [
 			{
@@ -167,7 +167,7 @@ export default new Command({
 		],
 	},
 	cooldown: 10,
-	example: "/tools ping",
+	example: "/util ping",
 	execute: async ({ interaction, args, client }) => {
 		switch (args.getSubcommand()) {
 			case "avatar": {
