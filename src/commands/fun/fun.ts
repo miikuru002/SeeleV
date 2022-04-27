@@ -1,9 +1,12 @@
 import { Command } from "../../structures";
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import {
+	MessageActionRow,
+	MessageButton,
+	MessageEmbed,
+} from "discord.js";
 import { embed_color } from "../../config";
 import { getInfoFromName } from "mal-scraper";
 import { translate } from "../../util";
-
 
 export default new Command({
 	data: {
@@ -62,7 +65,7 @@ export default new Command({
 	execute: async ({ interaction, args }) => {
 		switch (args.getSubcommand()) {
 			case "anime_info": {
-				const name = args.getString("nombre", true); 	//obtiene el usuario
+				const name = args.getString("nombre", true); //obtiene el usuario
 				const row = new MessageActionRow();
 				const ani_embed = new MessageEmbed();
 
@@ -70,7 +73,7 @@ export default new Command({
 
 				try {
 					const data = await getInfoFromName(name);
-		
+
 					if (data) {
 						ani_embed
 							.setTitle(":cherry_blossom: Anime info:")
@@ -128,34 +131,53 @@ export default new Command({
 								true
 							)
 							.setColor(embed_color);
-				
+
 						row.addComponents(
 							new MessageButton()
 								.setURL(data.url)
 								.setLabel("Más información")
 								.setStyle("LINK")
 						);
-		
+
 						return await interaction.editReply({
 							embeds: [ani_embed],
 							components: [row],
 						});
 					}
-		
+
 					ani_embed
 						.setTitle(":cherry_blossom: Anime info:")
 						.setDescription("No pude encontrar ese anime...")
 						.setColor(embed_color);
 					return await interaction.editReply({ embeds: [ani_embed] });
-					
+
 				} catch (err) {
 					ani_embed
 						.setTitle(":cherry_blossom: Anime info:")
 						.setDescription("Uh oh, algo salió mal:(...")
 						.setColor(embed_color);
-		
+
 					return await interaction.editReply({ embeds: [ani_embed] });
 				}
+			}
+
+			case "say": {
+				const msg = args.getString("mensaje", true);
+
+				//si el mensaje contiene un @everyone/here o menciona a un rol
+				if (msg.match(/@(everyone|here)/gi) || msg.match(/<@&(\d{17,19})>/gi)) {
+					return await interaction.reply({ 
+						content: "**:no_entry_sign: | El mensaje no puede tener un everyone/here o mencionar algún rol**" 
+					});
+				}
+
+				//envía el mensaje
+				await interaction.channel?.send({ content: msg });
+
+				//envía un mensaje efímero de confirmación (se debe responder al comando, sino sale error)
+				return await interaction.reply({ 
+					content: "Mensaje enviado (｡•̀ᴗ-)✧", ephemeral: true 
+				});
 			}
 
 			default:
