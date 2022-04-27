@@ -16,6 +16,19 @@ export default new Command({
 		description: "Colección de diversos subcomandos enfocados al entretenimineto y diversión",
 		options: [
 			{
+				name: "8ball",
+				description: "Respondo aleatoriamente a una pregunta que me hagas",
+				type: "SUB_COMMAND",
+				options: [
+					{
+						name: "pregunta",
+						description: "La pregunta que quieres que responda",
+						required: true,
+						type: "STRING",
+					},
+				],
+			},
+			{
 				name: "anime_info",
 				description: "Muestro la información de una serie de anime a partir de su nombre o apodo",
 				type: "SUB_COMMAND",
@@ -66,8 +79,40 @@ export default new Command({
 	example: "/fun anime_info fairy tail",
 	execute: async ({ interaction, args }) => {
 		switch (args.getSubcommand()) {
+			case "8ball": {
+				const prg = args.getString("pregunta", true);
+				const rpts = [
+					"Sip", 
+					"Nop", 
+					"Tal vez...", 
+					"No lo sé...", 
+					"Quizás en un universo paralelo", 
+					"Quién sabe...", 
+					"Si bueno, quién tiene hambre okno", 
+					"Definitivemente",
+					"En efecto",
+					"No nya",
+					"Sí nya",
+					"aea",
+					"Solo sé que nada se",
+					"Sí, digo.. ¿que?"
+				]; 
+				
+				const random = rpts[Math.floor(Math.random() * rpts.length)];
+  
+				const embed8 = new MessageEmbed() 
+					.setTitle(":8ball: Pregunta 8ball:")
+					.setColor(embed_color)
+					.addField("Tu pregunta:", prg)
+					.addField("Mi respuesta:", random);
+
+				return await interaction.reply({
+					embeds: [embed8],
+				});
+			}
+
 			case "anime_info": {
-				const name = args.getString("nombre", true); //obtiene el usuario
+				const name = args.getString("nombre", true); 
 				const row = new MessageActionRow();
 				const ani_embed = new MessageEmbed();
 
