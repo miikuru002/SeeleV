@@ -16,6 +16,7 @@ export default new Command({
 		],
 	},
 	example: "/afk estudiando",
+	cooldown: 5,
 	execute: async ({ interaction, args }) => {
 		const razon = args.getString("razón") ?? "No se especificó";
 

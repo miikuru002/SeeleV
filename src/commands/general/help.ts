@@ -20,6 +20,7 @@ export default new Command({
 		],
 	},
 	example: "/help ping",
+	cooldown: 5,
 	execute: async ({ interaction, args, client }) => {
 		const subcom = args.getString("subcomando");
 
