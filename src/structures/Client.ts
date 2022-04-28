@@ -4,7 +4,7 @@ import {
 	ClientEvents,
 	Collection,
 } from "discord.js";
-import { IRegisterCommandOptions } from "../types";
+import { IRegisterCommandOptions, ISnipe } from "../types";
 import { Command, Event } from "../structures";
 import { bot_version } from "../config";
 import { promisify } from "util";
@@ -28,6 +28,7 @@ const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT, MONGODB_URL } = process.env
 export class SeeleV extends Client {
 	public commands: Collection<string, Command>;
 	public events: Collection<string, Event<keyof ClientEvents>>;
+	public snipes: Collection<string, ISnipe>;
 
 	constructor() {
 		//llama al constructor de la clase padre Client
@@ -35,6 +36,7 @@ export class SeeleV extends Client {
 
 		this.commands = new Collection();
 		this.events = new Collection();
+		this.snipes = new Collection();
 	}
 
 	/**

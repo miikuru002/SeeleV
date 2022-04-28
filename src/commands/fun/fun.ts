@@ -61,7 +61,7 @@ export default new Command({
 			},
 			{
 				name: "say_sus",
-				description: "Muestro una imagen como so fuera una captura de algo que dijo un usuario",
+				description: "Muestro una imagen como si fuera una captura de algo que dijo un usuario",
 				type: "SUB_COMMAND",
 				options: [
 					{

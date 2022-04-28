@@ -5,5 +5,5 @@ export {
 	IExecuteOptions,
 	ICommand,
 } from "./Command";
-export { IClima, ILocation } from "./misc";
+export { IClima, ILocation, ISnipe } from "./misc";
 export { IBienvenidas, IRecordatorios, IAfk } from "./Schemas";
