@@ -62,26 +62,40 @@ export default new Command({
 					? user.displayAvatarURL({ dynamic: true })
 					: interaction.user.displayAvatarURL({ dynamic: true });
 				const cuenta_creada = user
-					? `${user.createdAt.toLocaleDateString("es-pe")}`
-					: `${interaction.user.createdAt.toLocaleDateString("es-pe")}`;
-				const fecha_ingreso = user
-					? `${member?.joinedAt?.toLocaleDateString("es-pe")}`
-					: `${member?.joinedAt?.toLocaleDateString("es-pe")}`;
+					? user.createdAt
+					: interaction.user.createdAt;
+				const fecha_ingreso = user ? member?.joinedAt : member?.joinedAt;
 				const roles = user
 					? member?.roles.cache.map((role) => role.toString()).join(" ")
 					: member?.roles.cache.map((role) => role.toString()).join(" ");
 
 				const us_embed = new MessageEmbed()
-					.setTitle(":information_source: Información de usuario:")
+					.setTitle(
+						":information_source::bust_in_silhouette: Información de usuario:"
+					)
 					.setColor(member?.displayHexColor ?? embed_color)
 					.setThumbnail(avatar)
 					.addField("ID:", `\`${user_id}\``, true)
 					.addField("Nombre de usuario:", username, true)
 					.addField("Apodo:", nickname, true)
-					.addField("Cuenta creada:", `\`${cuenta_creada}\``, true)
-					.addField("Fecha de ingreso:", `\`${fecha_ingreso}\``, true)
+					.addField(
+						"Cuenta creada:",
+						`${cuenta_creada?.toLocaleDateString()}, <t:${Math.floor(
+							cuenta_creada.getTime() / 1_000
+						)}:R>`,
+						true
+					)
+					.addField(
+						"Fecha de ingreso:",
+						`${fecha_ingreso?.toLocaleDateString()}, <t:${Math.floor(
+							fecha_ingreso!.getTime() / 1_000
+						)}:R>`,
+						true
+					)
 					.addField("Roles:", `${roles}`)
-					.setFooter({text: "Si deseas ver el avatar en tamaño grande escribe: /tools avatar"});
+					.setFooter({
+						text: "Si deseas ver el avatar en tamaño grande escribe: /util avatar",
+					});
 
 				return await interaction.reply({ embeds: [us_embed] });
 			}
@@ -106,14 +120,16 @@ export default new Command({
 				await server.fetch();
 
 				const sv_embed = new MessageEmbed()
-					.setTitle(`:information_source: ${server.name}`)
+					.setTitle(":information_source::european_castle: Información del servidor")
 					.addField(
-						"Detalles:",
-						`ID: \`${server.id}\`\nDueño actual: <@!${
+						"Información general:",
+						`Nombre: \`${server.name}\`\nID: \`${
+							server.id
+						}\`\nDueño actual: <@!${
 							server.ownerId
-						}>\nFecha creación: \`${server.createdAt.toLocaleDateString()}\`\nNivel verificación: \`${
-							server.verificationLevel
-						}\``
+						}>\nFecha creación: ${server.createdAt.toLocaleDateString()}, <t:${Math.floor(
+							server.createdAt.getTime() / 1_000
+						)}:R>\nNivel verificación: \`${server.verificationLevel}\``
 					)
 					.addField(
 						"Estadísticas:",
@@ -132,15 +148,19 @@ export default new Command({
 					)
 					.setColor(embed_color)
 					.setThumbnail(server.iconURL()!)
-					.setFooter({text: "Si deseas ver el ícono del servidor en tamaño grande escribe: /tools server_icon"});
+					.setFooter({
+						text: "Si deseas ver el ícono del servidor en tamaño grande escribe: /util server_icon",
+					});
 
 				return await interaction.reply({ embeds: [sv_embed] });
 			}
 
 			case "bot": {
 				const devs: string[] = [];
-				const online = moment.duration(client.uptime).format(" D [dias], H [hrs], m [mins], s [secs]");
-				
+				const online = moment
+					.duration(client.uptime)
+					.format(" D [dias], H [hrs], m [mins], s [secs]");
+
 				for (const dev of developers) {
 					const user = await client.users.fetch(dev);
 					devs.push(`${user.username}#${user.discriminator}`);
@@ -149,12 +169,14 @@ export default new Command({
 				const bt_embed = new MessageEmbed()
 					.setTitle(":cherry_blossom: Sobre mí >/./<")
 					.setDescription(
-						"Hola!, soy una bot multifuncional con el propósito de serte de utilidad en cualquier momento, aún soy pequeña y es por ello que si observas algún error o sugerencia no dudes en reportarlo en mi servidor o creador. Próximamente tendré más funciones!"
+						`¡Hola! ヾ(☆'∀'☆), soy una bot multifuncional con el propósito de serte de utilidad en cualquier momento, aún soy pequeña \
+						y es por ello que si observas algún error o sugerencia no dudes en reportarlo en mi servidor o creador. ¡Próximamente tendré \
+						más funciones!\nMe crearon hace <t:${Math.floor(client.user!.createdAt.getTime() / 1_000)}:R> (︶｡︶✽)`
 					)
 					.setThumbnail(client.user!.avatarURL()!)
 					.addField(
 						"Equipo:",
-						`Desarrollador/es: \`${devs}\`\nAgradecimientos: \`@-Cynos-\`\n`
+						`Desarrollador/es: \`${devs}\`\nAgradecimientos: \`@-Cynos-\`, \`Sunny_senpai\``
 					)
 					.addField(
 						"Estadísticas:",
