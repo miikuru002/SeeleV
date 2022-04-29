@@ -100,7 +100,7 @@ export default new Command({
 				\n**Documentación:** *Próximamente...*`
 			)
 			.setFooter({
-				text: "Para obtener más información sobre mi escribe /help <subcomando>",
+				text: "Info: Este menú tiene un tiempo de vida de 2 minutos",
 			});
 
 		//crea el menu
@@ -116,12 +116,6 @@ export default new Command({
 						emoji: "⚙️",
 					},
 					{
-						label: "Dev",
-						value: "dev",
-						description: "Comandos solo para desarrolladores",
-						emoji: "💻",
-					},
-					{
 						label: "Fun",
 						value: "fun",
 						description: "Comandos de diversión y entretenimiento",
@@ -132,6 +126,12 @@ export default new Command({
 						value: "general",
 						description: "Comandos generales (no tienen subcomandos)",
 						emoji: "📨",
+					},
+					{
+						label: "Moderación",
+						value: "mod",
+						description: "Comandos de moración",
+						emoji: "🛑",
 					},
 					{
 						label: "Util",
@@ -155,6 +155,7 @@ export default new Command({
 		const collector = interaction.channel?.createMessageComponentCollector({
 			filter,
 			componentType: "SELECT_MENU",
+			time: 120_000
 		});
 
 		//comienza a coleccionar
@@ -224,6 +225,11 @@ export default new Command({
 			}
 
 			await i.update({ embeds: [sub_embed] }).catch();
+		});
+
+		//cuando se terminan los 2 minutos, quita el menú (para evitar errores)
+		collector?.on("end", async () => {
+			await interaction.editReply({components: []});
 		});
 	},
 });
