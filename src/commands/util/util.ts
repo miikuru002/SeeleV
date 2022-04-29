@@ -465,7 +465,7 @@ export default new Command({
 				}
 
 				return await interaction.reply({
-					content: `**:x: | ___${interaction.guild?.name}___ no tiene un ícono para mostrarlo... :(**`,
+					content: "**:x: | Este servidor no tiene un ícono para mostrarlo... :(**",
 				});
 			}
 
