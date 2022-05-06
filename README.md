@@ -5,6 +5,7 @@
 
 <div align=center>
 
+[![Release](https://img.shields.io/github/v/release/kurumii002/seelev)](https://github.com/kurumii002/seelev/releases/)
 [![CodeFactor](https://www.codefactor.io/repository/github/kurumii002/seelev/badge)](https://www.codefactor.io/repository/github/kurumii002/seelev)
 [![Discord.js](https://img.shields.io/badge/discord.js-v13.6.0-blue.svg?logo=npm)](https://discord.js.org/)
 [![Nodeversion](https://img.shields.io/badge/node-v16.14+-success.svg?logo=nodedotjs&logoColor=white)](https://discord.js.org/)
