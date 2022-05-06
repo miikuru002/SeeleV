@@ -30,15 +30,7 @@ export default new Event({
 					const channel = client.channels.cache.get(rem.channelID);
 
 					await (channel as TextChannel).send({ //envía el recordatorio
-						embeds: [
-							new MessageEmbed()
-								.setTitle(":clock1::exclamation: Fin de recordatorio:")
-								.setDescription(`<@!${rem.userID}> recuerda: ${rem.message}!!`)
-								.setColor(embed_color),
-						],
-					});
-					await (channel as TextChannel).send({
-						content: `<@!${rem.userID}>`,
+						content: `**:clock1::exclamation: | Fin de recordatorio, <@!${rem.userID}> recuerda: ${rem.message}!!**`,
 					});
 
 					await Recordatorios.deleteOne({ id_user: rem.userID }); //se elimina de la BD
