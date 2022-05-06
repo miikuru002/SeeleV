@@ -36,21 +36,31 @@ export default new Command({
 	},
 	cooldown: 5,
 	userPermissions: ["MANAGE_CHANNELS"],
+	botPermissions: ["EMBED_LINKS", "SEND_MESSAGES", "VIEW_CHANNEL"],
 	example: "/config activar_bienvenidas",
 	execute: async ({ interaction, args }) => {
 		switch (args.getSubcommand()) {
 			case "activar_bienvenidas": {
 				const channel = args.getChannel("canal", true);
 
-				if (channel.type !== "GUILD_TEXT") { //si el canal que se indica no es de texto
+				//si el canal que se indica no es de texto
+				if (channel.type !== "GUILD_TEXT") { 
 					return await interaction.reply({
-						content: ":x: | **Las bienvenidas solo están disponibles en canales de texto >.<**",
+						content: "**:x: | Las bienvenidas solo están disponibles en canales de texto >.<**",
 					});
 				}
 
-				if (!channel.viewable) { //si el bot no puede ver el canal
+				//si el bot no puede ver el canal
+				if (!channel.viewable) { 
 					return await interaction.reply({
-						content: ":no_entry_sign: | **No tengo acceso al canal que me indicaste >.<**",
+						content: "**:no_entry_sign: | No tengo acceso al canal que me indicaste >.<**",
+					});
+				}
+
+				//si el bot no puede enviar mensajes en ese canal
+				if (!channel.permissionsFor(interaction.guild!.me!).has("SEND_MESSAGES")){
+					return await interaction.reply({
+						content: "**:no_entry_sign: | No puedo enviar mensajes a ese canal**",
 					});
 				}
 
@@ -67,7 +77,7 @@ export default new Command({
 					if (image) { //si el usuario especifica una imagen en el comando
 						if (!isImage(image)) { //verifica si la URL de la imagen es incorrecta
 							return await interaction.editReply({
-								content: ":x: | **La URL de la imagen no es válida, asegúrate que tenga la extensión `.jpg`, `.png` o `.gif` >.<**",
+								content: "**:x: | La URL de la imagen no es válida, asegúrate que tenga la extensión `.jpg`, `.png` o `.gif` >.<**",
 							});
 						}
 
@@ -99,7 +109,7 @@ export default new Command({
 
 					if (!isImage(image)) { 
 						return await interaction.editReply({
-							content: ":x: | **La URL de la imagen no es válida, asegúrate que tenga la extensión `.jpg`, `.png` o `.gif` >.<**",
+							content: "**:x: | La URL de la imagen no es válida, asegúrate que tenga la extensión `.jpg`, `.png` o `.gif` >.<**",
 						});
 					}
 
@@ -146,7 +156,7 @@ export default new Command({
 				}
 
 				return await interaction.editReply({
-					content: ":x: | **Este servidor no tiene las bienvenidas activas >.<**",
+					content: "**:x: | Este servidor no tiene las bienvenidas activas >.<**",
 				});
 			}
 
