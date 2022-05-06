@@ -36,7 +36,7 @@ export default new Command({
 	},
 	cooldown: 5,
 	userPermissions: ["MANAGE_CHANNELS"],
-	example: "/config activar_logs",
+	example: "/config activar_bienvenidas",
 	execute: async ({ interaction, args }) => {
 		switch (args.getSubcommand()) {
 			case "activar_bienvenidas": {
@@ -45,6 +45,12 @@ export default new Command({
 				if (channel.type !== "GUILD_TEXT") { //si el canal que se indica no es de texto
 					return await interaction.reply({
 						content: ":x: | **Las bienvenidas solo están disponibles en canales de texto >.<**",
+					});
+				}
+
+				if (!channel.viewable) { //si el bot no puede ver el canal
+					return await interaction.reply({
+						content: ":no_entry_sign: | **No tengo acceso al canal que me indicaste >.<**",
 					});
 				}
 
