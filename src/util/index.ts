@@ -4,5 +4,4 @@ export {
 	isImage,
 	translate,
 	getElapsedTime,
-	getCanvasFakeMessage,
 } from "./misc";

@@ -155,7 +155,7 @@ export default new Command({
 		const collector = interaction.channel?.createMessageComponentCollector({
 			filter,
 			componentType: "SELECT_MENU",
-			time: 120_000
+			time: 120_000,
 		});
 
 		//comienza a coleccionar
@@ -177,6 +177,10 @@ export default new Command({
 						`__*Miembros:*__ \`${
 							command?.userPermissions.length
 								? command.userPermissions.join("`, `")
+								: "No necesita"
+						}\`\n__*Bot:*__ \`${
+							command?.botPermissions.length
+								? command.botPermissions.join("`, `")
 								: "No necesita"
 						}\``,
 						true
@@ -229,7 +233,7 @@ export default new Command({
 
 		//cuando se terminan los 2 minutos, quita el menú (para evitar errores)
 		collector?.on("end", async () => {
-			await interaction.editReply({components: []});
+			await interaction.editReply({ components: [] });
 		});
 	},
 });

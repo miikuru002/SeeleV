@@ -1,8 +1,6 @@
 import trans from "@vitalets/google-translate-api";
 import Logger from "./Logger";
 import humanizeDuration from "humanize-duration";
-import { createCanvas, loadImage } from "canvas";
-import { GuildMember } from "discord.js";
 
 /**
  * Obtiene la cantidad de memoria usada
