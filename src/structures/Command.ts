@@ -14,6 +14,7 @@ import { IExecuteOptions, ICommand } from "../types";
 export class Command {
 	public data: ChatInputApplicationCommandData;
 	public userPermissions: PermissionResolvable[];
+	public botPermissions: PermissionResolvable[];
 	public cooldown: number;
 	public enabled: boolean;
 	public devsOnly: boolean;
@@ -29,6 +30,7 @@ export class Command {
 		//!el operador "??" solo evalua si la variable es null o undefined
 		this.data = properties.data;
 		this.userPermissions = properties.userPermissions ?? [];
+		this.botPermissions = properties.botPermissions ?? [];
 		this.cooldown = properties.cooldown ?? 3;
 		this.enabled = properties.enabled ?? true;
 		this.devsOnly = properties.devsOnly ?? false;
@@ -93,15 +95,30 @@ export class Command {
 			return false;
 		}
 
-		//verifica si el usuario que quiera ejecutar el comando tiene los permisos a nivel del SERVIDOR
+		//casteo para verificar los permisos desde una interaction
 		const user = interaction.member as GuildMember;
+		const bot = interaction.guild!.me!;
+
+		//verifica si el usuario que quiera ejecutar el comando tiene los permisos a nivel del SERVIDOR
 		if (
 			this.userPermissions[0] &&
-			!this.userPermissions.some((x) => user.permissions.has(x)) /*&&
-			!developers.includes(interaction.user.id)*/
+			!this.userPermissions.some((perms) => user.permissions.has(perms)) &&
+			!developers.includes(interaction.user.id)
 		) {
 			await interaction.reply(
 				`**:no_entry_sign: | Necesitas estos permisos:** \`${this.userPermissions.join(", ")}\``
+			);
+
+			return false;
+		}
+
+		//verifica si el bot tiene los permisos a nivel del SERVIDOR
+		if (
+			this.botPermissions[0] &&
+			!this.botPermissions.some((perms) => bot.permissions.has(perms))
+		) {
+			await interaction.reply(
+				`**:no_entry_sign: | Necesito estos permisos:** \`${this.botPermissions.join(", ")}\``
 			);
 
 			return false;

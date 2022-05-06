@@ -30,6 +30,7 @@ export interface IExecuteOptions {
 export type ICommand = {
 	data: ChatInputApplicationCommandData;
 	userPermissions?: PermissionResolvable[];
+	botPermissions?: PermissionResolvable[];
 	cooldown?: number;
 	enabled?: boolean;
 	devsOnly?: boolean;
