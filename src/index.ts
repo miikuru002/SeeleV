@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { SeeleV } from "./structures";	
+import { SeeleV } from "./structures";
 import Logger from "./util/Logger";
 config();
 
@@ -15,5 +15,5 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (err) => {
 	process.exitCode = 1;
-	Logger.error(`unhandled promise rejection -> ${err}`);	
+	Logger.warn(`unhandled promise rejection -> ${err}`);
 });
