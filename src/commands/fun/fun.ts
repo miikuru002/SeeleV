@@ -3,13 +3,11 @@ import {
 	MessageActionRow,
 	MessageButton,
 	MessageEmbed,
-	MessageAttachment,
 	TextChannel,
 } from "discord.js";
 import { embed_color } from "../../config";
 import { getInfoFromName } from "mal-scraper";
 import { translate } from "../../util";
-import { getCanvasFakeMessage } from "../../util/misc";
 
 export default new Command({
 	data: {
@@ -55,25 +53,6 @@ export default new Command({
 					{
 						name: "mensaje",
 						description: "Lo que quieres que repita",
-						required: true,
-						type: "STRING",
-					},
-				],
-			},
-			{
-				name: "say_sus",
-				description: "Muestro una imagen como si fuera una captura de algo que dijo un usuario",
-				type: "SUB_COMMAND",
-				options: [
-					{
-						name: "usuario",
-						description: "El usuario que se mostrará",
-						required: true,
-						type: "USER",
-					},
-					{
-						name: "mensaje",
-						description: "El mensaje que dirá ese usuario (solo texto, no emojis)",
 						required: true,
 						type: "STRING",
 					},
@@ -249,32 +228,6 @@ export default new Command({
 				return await interaction.reply({
 					content: "Mensaje enviado (｡•̀ᴗ-)✧",
 					ephemeral: true,
-				});
-			}
-
-			case "say_sus": {
-				const user = args.getUser("usuario", true);
-				const msg = args.getString("mensaje", true);
-				const member = interaction.guild?.members.cache.get(user.id);
-
-				if (member) {
-					//bot "pensando"
-					await interaction.deferReply();
-
-					//crea la imagen
-					const img = await getCanvasFakeMessage(member, msg);
-
-					//crea el archivo adjunto
-					const attach = new MessageAttachment(img);
-
-					//envia la imagen
-					return await interaction.editReply({
-						files: [{ attachment: attach.attachment, name: "say_sus.png" }],
-					});
-				}
-
-				return await interaction.reply({
-					content: "Este usuario no existe...",
 				});
 			}
 

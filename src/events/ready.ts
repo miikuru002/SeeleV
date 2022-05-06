@@ -1,5 +1,5 @@
-import { MessageEmbed, PresenceStatusData, TextChannel } from "discord.js";
-import { bot_version, embed_color } from "../config";
+import { PresenceStatusData, TextChannel } from "discord.js";
+import { bot_version } from "../config";
 import { Recordatorios } from "../models";
 import { Event } from "../structures";
 import Logger from "../util/Logger";
