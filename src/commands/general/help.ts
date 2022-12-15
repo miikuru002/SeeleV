@@ -1,25 +1,26 @@
 import { Command } from "../../structures";
 import {
 	Interaction,
-	MessageActionRow,
-	MessageEmbed,
-	MessageSelectMenu,
+	ActionRowBuilder,
+	EmbedBuilder,
+	ApplicationCommandOptionType,
+	ComponentType,
+	SelectMenuBuilder,
 } from "discord.js";
 import { embed_color } from "../../config";
 
 export default new Command({
-	data: {
+	definition: {
 		name: "help",
-		description: "Muestro mis comandos disponibles",
+		description: "❓ Muestro mis comandos disponibles",
 		options: [
 			{
 				name: "subcomando",
 				description: "Te mostraré la información de ese subcomando",
-				type: "STRING",
+				type: ApplicationCommandOptionType.String,
 			},
 		],
 	},
-	example: "/help ping",
 	cooldown: 5,
 	execute: async ({ interaction, args, client }) => {
 		const subcom = args.getString("subcomando");
@@ -51,13 +52,13 @@ export default new Command({
 			let type = "";
 
 			client.commands.forEach((cmd) => {
-				cmd.data.options?.forEach((sub) => {
-					if (sub.type === "SUB_COMMAND") {
+				cmd.definition.options?.forEach((sub) => {
+					if (sub.type === ApplicationCommandOptionType.Subcommand) {
 						if (sub.name === subcom) {
 							name = sub.name;
 							desc = sub.description;
 							args = sub.options;
-							type = sub.type as string;
+							type = `${sub.type}`;
 						}
 					} else return;
 				});
@@ -65,33 +66,33 @@ export default new Command({
 
 			console.log(args);
 
-			return await interaction.reply({
+			await interaction.reply({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle(
 							`:information_source: Información del subcomando: ${name}`
 						)
 						.setColor(embed_color)
 						.setDescription(`**Descripción:** ${desc}`)
-						.addField("Tipo:", `\`${type}\``)
-						.addField(
-							"Argumentos:",
-							`\`${args ? args.map((a) => a.name).join("`, `") : "No tiene"}\``
-						),
+						.addFields(
+							{ name: "Tipo:", value: `\`${type}\`` },
+							{ name: "Argumentos:", value: `\`${args ? args.map((a) => a.name).join("`, `") : "No tiene"}\``}
+						)
 				],
 			});
+			return;
 		}
 
 		//obtiene los subcomandos de cada comando
 		const subc: string[] = [];
 		client.commands.forEach((cmd) => {
-			cmd.data.options?.forEach((sub) => {
-				if (sub.type === "SUB_COMMAND") subc.push(sub.name);
+			cmd.definition.options?.forEach((sub) => {
+				if (sub.type === ApplicationCommandOptionType.Subcommand) subc.push(sub.name);
 			});
 		});
 
 		//crea el embed que irá con el menú
-		const help_embed = new MessageEmbed()
+		const help_embed = new EmbedBuilder()
 			.setTitle(":books: Menú de ayuda:")
 			.setColor(embed_color)
 			.setDescription(
@@ -104,8 +105,8 @@ export default new Command({
 			});
 
 		//crea el menu
-		const help_menu = new MessageActionRow().addComponents(
-			new MessageSelectMenu()
+		const help_menu = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+			new SelectMenuBuilder()
 				.setCustomId("help")
 				.setPlaceholder("Click para ver mis comandos")
 				.addOptions([
@@ -154,14 +155,14 @@ export default new Command({
 		//crea el collector para el menú
 		const collector = interaction.channel?.createMessageComponentCollector({
 			filter,
-			componentType: "SELECT_MENU",
+			componentType: ComponentType.SelectMenu,
 			time: 120_000,
 		});
 
 		//comienza a coleccionar
 		collector?.on("collect", async (i) => {
 			const [cmd_name] = i.values;
-			const sub_embed = new MessageEmbed();
+			const sub_embed = new EmbedBuilder();
 
 			if (cmd_name !== "general") {
 				const command = client.commands.get(cmd_name);
@@ -169,46 +170,50 @@ export default new Command({
 				sub_embed
 					.setColor(embed_color)
 					.setTitle(`Comando: ${cmd_name}`)
-					.setDescription(`**Descripción:** ${command?.data.description}`)
-					.addField("Ejemplo:", `\`${command?.example}\``, true)
-					.addField("Cooldown:", `\`${command?.cooldown} segundos\``, true)
-					.addField(
-						"Permisos:",
-						`__*Miembros:*__ \`${
-							command?.userPermissions.length
-								? command.userPermissions.join("`, `")
-								: "No necesita"
-						}\`\n__*Bot:*__ \`${
-							command?.botPermissions.length
-								? command.botPermissions.join("`, `")
-								: "No necesita"
-						}\``,
-						true
-					)
-					.addField(
-						"Estado",
-						`__*En mantenimiento:*__ ${
-							command?.enabled ? "No" : "Sí"
-						}\n__*Alcance:*__ ${
-							command?.devsOnly ? "Solo desarrolladores" : "Todo el público"
-						}`,
-						true
-					)
-					.addField(
-						":scroll: Subcomandos:",
-						`> ${client.commands
-							.filter((cmd) => cmd.data.name === cmd_name)
-							.map((cmd) => {
-								const subc: string[] = [];
+					.setDescription(`**Descripción:** ${command?.definition.description}`)
+					.addFields(
+						{ name: "Cooldown:", value: `\`${command?.cooldown} segundos\``, inline: true },
+						{ 
+							name: "Permisos:", 
+							value:
+							`__*Miembros:*__ \`${
+								command?.userPermissions.length
+									? command.userPermissions.join("`, `")
+									: "No necesita"
+							}\`\n__*Bot:*__ \`${
+								command?.botPermissions.length
+									? command.botPermissions.join("`, `")
+									: "No necesita"
+							}\``,
+							inline: true 
+						},
+						// {
+						// 	name: "Estado",
+						// 	value: 
+						// 	`__*En mantenimiento:*__ ${
+						// 		command?.enabled ? "No" : "Sí"
+						// 	}\n__*Alcance:*__ ${
+						// 		command?.devsOnly ? "Solo desarrolladores" : "Todo el público"
+						// 	}`,
+						// 	inline: true
+						// },
+						{
+							name: ":scroll: Subcomandos:",
+							value: 
+							`> ${client.commands
+								.filter((cmd) => cmd.definition.name === cmd_name)
+								.map((cmd) => {
+									const subc: string[] = [];
 
-								cmd.data.options?.forEach((sub) => {
-									if (sub.type === "SUB_COMMAND") {
-										subc.push(sub.name);
-									}
-								});
+									cmd.definition.options?.forEach((sub) => {
+										if (sub.type === ApplicationCommandOptionType.Subcommand) {
+											subc.push(sub.name);
+										}
+									});
 
-								return `\`${subc.join("`, `")}\``;
-							})}`
+									return `\`${subc.join("`, `")}\``;
+								})}`
+						}
 					)
 					.setFooter({
 						text: "Para obtener más información de un subcomando escribe /help <subcomando>",
@@ -222,7 +227,7 @@ export default new Command({
 					.setDescription(
 						"📨 Estos comandos no tiene subcomandos, su uso es más directo."
 					)
-					.addField("Comandos:", "> `/afk`, `/help`,`/info`")
+					.addFields({ name: "Comandos:", value: "> `/afk`, `/help`,`/info`" })
 					.setFooter({
 						text: "Para obtener más información de un subcomando escribe /help <subcomando>",
 					});

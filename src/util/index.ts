@@ -5,3 +5,4 @@ export {
 	translate,
 	getElapsedTime,
 } from "./misc";
+export { loadFiles, registerCommands } from "./client";

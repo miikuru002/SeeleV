@@ -5,11 +5,25 @@ import { ram } from "./misc";
 /**
  * Clase que se encargar de mostrar por consola mensajes sobre la actividad del bot
  */
-class Logger {
+export class Logger {
+	private static instance: Logger; //singleton
 	private logHistory: string[]; //array para guardar los últimos 20 logs
 
-	constructor() {
+	//para evitar crear instancias
+	private constructor() {
 		this.logHistory = [];
+	}
+
+	/**
+	 * Metodo estatico que controla el acceso a la instancia singleton
+	 * @returns
+	 */
+	public static getInstance(): Logger {
+		if (!Logger.instance) {
+			Logger.instance = new Logger();
+		}
+
+		return Logger.instance;
 	}
 
 	/**
@@ -85,5 +99,3 @@ class Logger {
 		console.log(`${this.getTimestamp()} ${chalk.bold.green("SUCCESS")}\t${chalk.green(message)}`);
 	}
 }
-
-export default new Logger();

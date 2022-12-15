@@ -1,5 +1,5 @@
 import trans from "@vitalets/google-translate-api";
-import Logger from "./Logger";
+import { Logger } from "./Logger";
 import humanizeDuration from "humanize-duration";
 
 /**
@@ -19,11 +19,11 @@ export const getTimeFromTimezone = (timezone: number): string => {
 	// convert to msec
 	// subtract local time zone offset
 	// get UTC time in msec
-	const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+	const utc = d.getTime() + d.getTimezoneOffset() * 60_000;
 
 	// create new Date object for different city
 	// using supplied offset
-	const nd = new Date(utc + 3600000 * timezone);
+	const nd = new Date(utc + 3_600_000 * timezone);
 
 	return nd.toLocaleString(); //retorna la fecha y hora como string
 };
@@ -55,9 +55,8 @@ export const translate = async (message: string, lang: string) => {
 	try {
 		const res = await trans(message, { to: lang });
 		return res.text;
-
 	} catch (error) {
-		Logger.error(error);
+		Logger.getInstance().error(error);
 	}
 };
 
@@ -78,3 +77,9 @@ export const getElapsedTime = (time: number): string => {
 
 	return elapsed_time;
 };
+
+// //si el quien ejecuta el comando no es un desarrollador (para desactivar un comando)
+// if (!developers.includes(params.interaction.user.id)) {
+// 	await params.interaction.reply("**:tools: | Este comando está en mantenimiento**");
+// 	return;
+// }

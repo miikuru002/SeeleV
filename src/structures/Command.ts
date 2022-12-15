@@ -1,44 +1,24 @@
-import {
-	ChatInputApplicationCommandData,
-	Collection,
-	CommandInteraction,
-	GuildMember,
-	PermissionResolvable,
-} from "discord.js";
+import { ChatInputApplicationCommandData, CommandInteraction, GuildMember, PermissionResolvable } from "discord.js";
+import { seelev } from "..";
 import { developers } from "../config";
-import { IExecuteOptions, ICommand } from "../types";
+import { ICommand, IExecuteParams } from "../types";
 
 /**
- * Clase que contiene atributos necesarios para un comando
+ * Clase base para un comando
  */
 export class Command {
-	public data: ChatInputApplicationCommandData;
+	public definition: ChatInputApplicationCommandData;
 	public userPermissions: PermissionResolvable[];
 	public botPermissions: PermissionResolvable[];
 	public cooldown: number;
-	public enabled: boolean;
-	public devsOnly: boolean;
-	public example: string;
-	public execute: (options: IExecuteOptions) => any;
-	private cooldowns: Collection<string, number>;
+	public execute: (params: IExecuteParams) => Promise<void>;
 
-	/**
-	 * Inicializa los atributos del comando
-	 * @param properties Objeto para establecer los atributos
-	 */
-	constructor(properties: ICommand) {
-		//!el operador "??" solo evalua si la variable es null o undefined
-		this.data = properties.data;
-		this.userPermissions = properties.userPermissions ?? [];
-		this.botPermissions = properties.botPermissions ?? [];
-		this.cooldown = properties.cooldown ?? 3;
-		this.enabled = properties.enabled ?? true;
-		this.devsOnly = properties.devsOnly ?? false;
-		this.example = properties.example ?? `/${this.data.name}`;
-		this.execute = properties.execute;
-
-		//colección de cooldowns
-		this.cooldowns = new Collection();
+	constructor(public commandDefinition: ICommand) {
+		this.definition = commandDefinition.definition;
+		this.userPermissions = commandDefinition.userPermissions ?? [];
+		this.botPermissions = commandDefinition.botPermissions ?? [];
+		this.cooldown = commandDefinition.cooldown ?? 2;
+		this.execute = commandDefinition.execute;
 	}
 
 	/**
@@ -47,14 +27,14 @@ export class Command {
 	 * @returns Si está o no en enfriamiento
 	 */
 	private checkCooldowns(interaction: CommandInteraction): boolean {
-		if (this.cooldowns.has(interaction.user.id)) { 
+		if (seelev.cooldowns.has(interaction.user.id)) { 
 			return true;
 		}
 
-		this.cooldowns.set(interaction.user.id, Date.now() + this.cooldown * 1_000);
+		seelev.cooldowns.set(interaction.user.id, Date.now() + this.cooldown * 1_000);
 
 		setTimeout(() => {
-			this.cooldowns.delete(interaction.user.id);
+			seelev.cooldowns.delete(interaction.user.id);
 		}, this.cooldown * 1_000);
 
 		return false;
@@ -68,36 +48,21 @@ export class Command {
 	public async canExecute(interaction: CommandInteraction): Promise<boolean> {
 		//si el comando está en cooldown y el que lo usa no es un desarrollador
 		if (this.checkCooldowns(interaction) &&	!developers.includes(interaction.user.id)) {
-			const leftTime = (this.cooldowns.get(interaction.user.id)! - Date.now()) / 1_000;
+			const cooldown_time = seelev.cooldowns.get(interaction.user.id);
 
-			await interaction.reply(
-				`**:snowflake: | El comando está en enfriamiento, por favor espera:** \`${leftTime.toFixed(2)} segundos\``
-			);
-
-			return false;
-		}
-
-		//si el comando no está activado y el que lo usa no es un desarrollador
-		if (!this.enabled && !developers.includes(interaction.user.id)) {
-			await interaction.reply(
-				"**:tools: | Este comando está en mantenimiento**"
-			);
-
-			return false;
-		}
-
-		//si el comando es solo para desarrolladores y el que lo usa no es desarrollador
-		if (this.devsOnly && !developers.includes(interaction.user.id)) {
-			await interaction.reply(
-				"**:gear: | Este comando es solo para desarrolladores**"
-			);
+			if (cooldown_time) {
+				const leftTime = (cooldown_time - Date.now()) / 1_000;
+				await interaction.reply(
+					`**:snowflake: | El comando está en enfriamiento, por favor espera:** \`${leftTime.toFixed(2)} segundos\``
+				);
+			}
 
 			return false;
 		}
 
 		//casteo para verificar los permisos desde una interaction
 		const user = interaction.member as GuildMember;
-		const bot = interaction.guild!.me!;
+		const bot = interaction.guild!.members.me!;
 
 		//verifica si el usuario que quiera ejecutar el comando tiene los permisos a nivel del SERVIDOR
 		if (

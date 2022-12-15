@@ -1,12 +1,12 @@
-import { MessageEmbed } from "discord.js";
-import { embed_color } from "../config";
-import { Event } from "../structures";
-import { AFK } from "../models";
-import { getElapsedTime } from "../util";
+import { EmbedBuilder } from "discord.js";
+import { embed_color } from "../../config";
+import { Event } from "../../structures";
+import { AFK } from "../../models";
+import { getElapsedTime } from "../../util";
 
 export default new Event({
 	name: "messageCreate",
-	execute: async (message) => {
+	listener: async (message) => {
 		//?------------------------ SISTEMA AFK ------------------------//
 		//se bucan los datos en la DB
 		const data = await AFK.findOne({ userID: message.author.id });
@@ -14,11 +14,11 @@ export default new Event({
 		if (data) {	//si hay datos (el usuario está en los registros AFK)
 			message.reply({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle(":wave: Estado AFK removido:")
 						.setDescription(`Me alegro que hayas regresado **${message.author.tag}**!`)
-						.setThumbnail(message.author.avatarURL({ dynamic: true })!)
-						.addField("Tiempo AFK:", `\`${getElapsedTime(data.time)}\``)
+						.setThumbnail(`${message.author.avatarURL()}`)
+						.addFields([ { name: "Tiempo AFK:", value: `\`${getElapsedTime(data.time)}\`` } ])
 						.setColor(embed_color),
 				],
 			});
@@ -36,11 +36,13 @@ export default new Event({
 				if (afk_data) { //si se mencionó a un usuario que está AFK
 					return message.reply({
 						embeds: [
-							new MessageEmbed()
+							new EmbedBuilder()
 								.setTitle(`:zzz: ${member.user.tag} está AKF...`)
-								.setThumbnail(member.avatarURL({ dynamic: true })!)
-								.addField("Motivo:", afk_data.reason)
-								.addField("Tiempo:", `\`${getElapsedTime(afk_data.time)}\``)
+								.setThumbnail(`${member.avatarURL()}`)
+								.addFields([
+									{ name: "Motivo:", value: afk_data.reason },
+									{ name: "Tiempo:", value: `\`${getElapsedTime(afk_data.time)}\`` },
+								])
 								.setColor(embed_color),
 						],
 					});

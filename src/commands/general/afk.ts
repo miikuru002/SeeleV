@@ -1,21 +1,20 @@
 import { Command } from "../../structures";
-import { MessageEmbed } from "discord.js";
+import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import { embed_color } from "../../config";
 import { AFK } from "../../models";
 
 export default new Command({
-	data: {
+	definition: {
 		name: "afk",
-		description: "Dé una razón a los demás del porque no estás disponible",
+		description: "🌙 Dé una razón a los demás del porque no estás disponible",
 		options: [
 			{
 				name: "razón",
-				description: "¿Por qué motivos estarás AFK?",
-				type: "STRING",
+				description: "¿Por qué motivo estarás AFK?",
+				type: ApplicationCommandOptionType.String,
 			},
 		],
 	},
-	example: "/afk estudiando",
 	cooldown: 5,
 	execute: async ({ interaction, args }) => {
 		const razon = args.getString("razón") ?? "No se especificó";
@@ -23,9 +22,7 @@ export default new Command({
 		await interaction.deferReply(); //BOT PENSANDO//
 
 		//busca si el usuario está AFK
-		let data = await AFK.findOne({
-			userID: interaction.member.id,
-		});
+		let data = await AFK.findOne({ userID: interaction.member.id,	});
 
 		if (!data) { //si no lo está
 			//se crea su estado AFK
@@ -37,22 +34,22 @@ export default new Command({
 
 			await data.save();
 
-			return await interaction.editReply({
+			await interaction.editReply({
 				embeds: [
-					new MessageEmbed()
+					new EmbedBuilder()
 						.setTitle(":zzz: Estado AFK establecido: ")
-						.setDescription(
-							"Avisaré a quienes te mencionen que no estás disponible"
-						)
-						.addField("Motivo:", razon)
+						.setDescription("Avisaré a quienes te mencionen que no estás disponible")
+						.addFields([{ name: "Motivo:", value: razon }])
 						.setColor(embed_color),
 				],
 			});
+			return;
 
 		} else { //si ya está AFK
-			return await interaction.editReply({
+			await interaction.editReply({
 				content: "**:x: | Ya estableciste tu estado AFK**",
 			});
+			return;
 		}
 	},
 });

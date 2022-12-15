@@ -1,8 +1,7 @@
 export { IEventProperties } from "./Event";
 export {
-	IRegisterCommandOptions,
 	IExtendedInteraction,
-	IExecuteOptions,
+	IExecuteParams,
 	ICommand,
 } from "./Command";
 export { IClima, ILocation, ISnipe } from "./misc";

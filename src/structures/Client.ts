@@ -4,23 +4,19 @@ import {
 	ClientEvents,
 	Collection,
 } from "discord.js";
-import { IRegisterCommandOptions, ISnipe } from "../types";
+import { ISnipe } from "../types";
 import { Command, Event } from "../structures";
 import { bot_version } from "../config";
-import { promisify } from "util";
-import { config } from "dotenv";
 import { connect } from "mongoose";
-import glob from "glob";
-import Logger from "../util/Logger";
-
-//carga las variables del archivo .env
-config(); 
-
-//?que glob sea un promesa
-const globPromise = promisify(glob);
+import { Logger } from "../util/Logger";
+import { loadFiles } from "../util";
+import { config } from "dotenv";
+config();
 
 //obtiene las variables de entorno (desestructuracion)
-const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT, MONGODB_URL } = process.env; 
+const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT, MONGODB_URL } = process.env;
+//obtiene la instancia del logger
+const logger = Logger.getInstance();
 
 /**
  * Clase del bot, este hereda de Client (se crea una nueva instancia del cliente)
@@ -28,15 +24,24 @@ const { BOT_TOKEN, CLIENT_ID, GUILD_ID, ENVIRONMENT, MONGODB_URL } = process.env
 export class SeeleV extends Client {
 	public commands: Collection<string, Command>;
 	public events: Collection<string, Event<keyof ClientEvents>>;
+	public cooldowns: Collection<string, number>;
 	public snipes: Collection<string, ISnipe>;
+	public commandsToPublish: ApplicationCommandDataResolvable[]; //array de comandos para regitrarlos
 
 	constructor() {
-		//llama al constructor de la clase padre Client
-		super({ intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGES"] });
+		super({
+			intents: ["Guilds", "GuildMembers", "GuildMessages"],
+			allowedMentions: {
+				parse: ["roles", "users"],
+				repliedUser: false,
+			},
+		});
 
 		this.commands = new Collection();
 		this.events = new Collection();
+		this.cooldowns = new Collection();
 		this.snipes = new Collection();
+		this.commandsToPublish = [];
 	}
 
 	/**
@@ -49,12 +54,12 @@ export class SeeleV extends Client {
 		this.loadCommands();
 		this.loadEvents();
 
-		//inicia sesión (método de la clase Client)
+		//inicia sesión
 		this.login(BOT_TOKEN);
 	}
 
 	/**
-	 * Pinta el saludo
+	 * Imprime el saludo
 	 */
 	private printGreetMessage(): void {
 		console.log(" ____            _    __     __   _______");
@@ -67,11 +72,11 @@ export class SeeleV extends Client {
 	}
 
 	/**
-	 * Se encarga de verificar que las variables de entorno estén definidas
+	 * Verifica que las variables de entorno estén definidas
 	 */
 	private checkEnvironmentVars(): void {
-		if (!BOT_TOKEN || !CLIENT_ID || !GUILD_ID || !ENVIRONMENT || !MONGODB_URL) { //si no están definidas las variables
-			Logger.error("¡Faltan configurar las variables de entorno!. ¿Creó el archivo .env con las variables?");
+		if (!BOT_TOKEN || !CLIENT_ID || !GUILD_ID || !ENVIRONMENT || !MONGODB_URL) {
+			logger.error("¡Faltan configurar las variables de entorno!. ¿Creó el archivo .env con las variables?");
 			process.exit(1);
 		}
 	}
@@ -82,108 +87,69 @@ export class SeeleV extends Client {
 	private async connectDatabase(): Promise<void> {
 		try {
 			connect(`${process.env.MONGODB_URL}`);
-			Logger.success("MongoDB >> Conectado a la BD");
+			logger.success("MongoDB >> Conectado a la BD");
 		} catch (err) {
-			Logger.error(`MongoDB >> Ha ocurrido un error en la conexión ${err}`);
+			logger.error(`MongoDB >> Ha ocurrido un error en la conexión ${err}`);
 		}
-	}
-
-	/**
-	 * Hace las importaciones dinámicas según la ruta especificada
-	 * @param filePath Ruta del módulo
-	 * @returns Módulo importado
-	 */
-	private async importModule<T>(filePath: string): Promise<T> {
-		return (await import(filePath))?.default;
 	}
 
 	/**
 	 * Carga y registra los comandos a Discord
 	 */
-	private async loadCommands(): Promise<void> {
-		const slashCommands: ApplicationCommandDataResolvable[] = []; //array de slashCommands que deben ser publicados en discord
-		const command_files = await globPromise(`${__dirname}/../commands/*/*{.ts,.js}`);
+	public async loadCommands(): Promise<void> {
+		const commandFiles = await loadFiles("commands");
+		
+		//limpia las colecciones y el array (para recargar los comandos)
+		this.commandsToPublish = []; 
+		this.commands.clear();
 
-		Logger.info("Cargando comandos...");
+		logger.info("Cargando comandos...");
 
-		for (const filePath of command_files) {
+		for (const filePath of commandFiles) {
 			try {
-				const command: Command = await this.importModule(filePath);
-				if (!command.data.name) return; //si el comando no tiene un nombre, sera ignorado
-				//console.log(command);
+				//importacion dinamica
+				const command: Command = (await import(filePath))?.default;
 
-				this.commands.set(command.data.name, command); //guarda el comando en la coleccion del client
-				slashCommands.push(command.data); //guarda el comando en el array para publicarse
-			
+				//guarda el comando en la coleccion
+				this.commands.set(command.definition.name, command);
+				this.commandsToPublish.push(command.definition);
+				
 			} catch (error) {
-				process.exitCode = 1;
-				Logger.error(`Ocurrió un error al cargar el comando ${filePath.split("/").slice(-1)[0]} -> ${error}`);
+				logger.error(`Ocurrió un error al cargar el comando ${filePath.split("/").slice(-1)[0]} -> ${error}`);
 			}
 		}
 
-		Logger.success("Comandos cargados");
-
-		this.on("ready", () => {
-			const guild_id = ENVIRONMENT === "dev" ? GUILD_ID : undefined;
-
-			this.registerCommands(
-				{
-					commands: slashCommands,
-					guildID: guild_id
-				}
-			);
-		});
+		logger.success("Comandos cargados");
 	}
 
 	/**
 	 * Carga y registra los eventos a Discord
 	 */
-	private async loadEvents(): Promise<void> {
+	public async loadEvents(): Promise<void> {
 		//obtiene la ruta de cada evento
-		const event_files: string[] = await globPromise(`${__dirname}/../events/*{.ts,.js}`);
+		const event_files = await loadFiles("events");
 
-		Logger.info("Cargando eventos");
+		//para recargar eventos
+		this.events.clear();
+
+		logger.info("Cargando eventos");
 
 		for (const filePath of event_files) {
 			try {
-				const event: Event<keyof ClientEvents> = await this.importModule(filePath);
-				
+				const event: Event<keyof ClientEvents> = (await import(filePath))?.default;
+
 				if (event.once) {
-					this.once(event.name, event.execute);
+					this.once(event.name, event.listener);
 				} else {
-					this.on(event.name, event.execute);
+					this.on(event.name, event.listener);
 				}
 
 				this.events.set(event.name, event); //guarda el evento en la coleccion del client
-
 			} catch (error) {
-				process.exitCode = 1;
-				Logger.error(`Ocurrió un error al cargar el evento ${filePath.split("/").slice(-1)[0]} -> ${error}`);
+				logger.error(`Ocurrió un error al cargar el evento ${filePath.split("/").slice(-1)[0]} -> ${error}`);
 			}
 		}
 
-		Logger.success("Eventos cargados");
-	}
-
-	/**
-	 * Registra los slash-commands a Discord
-	 * @param options Opciones
-	 */
-	async registerCommands(options: IRegisterCommandOptions): Promise<void> {
-		try {
-			Logger.info("Desplegando/refrescando comandos...");
-
-			if (options.guildID) { //registrar los comandos solo en un servidor especificado
-				this.guilds.cache.get(options.guildID)?.commands.set(options.commands);
-				Logger.info(`Comandos registrados en: ${await this.guilds.fetch(options.guildID)}`);
-			
-			} else { //registrar los comandos globalmente
-				this.application?.commands.set(options.commands);
-				Logger.info("Comandos registrados globalmente (los cambios se verán en 1 hora)");
-			}
-		} catch (error) {
-			process.exitCode = 1;
-			Logger.error(`Ocurrió un error al refrescar o desplegar los comandos -> ${error}`);
-		}
+		logger.success("Eventos cargados");
 	}
 }

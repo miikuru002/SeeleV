@@ -8,32 +8,47 @@ import {
 	GuildMember,
 	PermissionResolvable,
 } from "discord.js";
-import { ApplicationCommandDataResolvable } from "discord.js";
 import { SeeleV } from "../structures/Client";
 
-export interface IRegisterCommandOptions {
-	guildID?: string; //puede ser para un servidor o globalmente
-	commands: ApplicationCommandDataResolvable[]; //los comandos
-}
-
-/*------------------------------------------------------------------------------*/
 export interface IExtendedInteraction extends CommandInteraction {
 	member: GuildMember;
 }
 
-export interface IExecuteOptions {
+export interface IExecuteParams {
+	/**
+	 * Instancia del cliente
+	 */
 	client: SeeleV;
+	/**
+	 * Interacción
+	 */
 	interaction: IExtendedInteraction;
+	/**
+	 * Argumentos del comando
+	 */
 	args: CommandInteractionOptionResolver;
 }
 
-export type ICommand = {
-	data: ChatInputApplicationCommandData;
+export interface ICommand {
+	/**
+	 * Definición del comando
+	 */
+	definition: ChatInputApplicationCommandData;
+	/**
+	 * Permisos que requiere el usuario para que ejecute el comando
+	 */
 	userPermissions?: PermissionResolvable[];
+	/**
+	 * Permisos que requiere el bot para que ejecute el comando
+	 */
 	botPermissions?: PermissionResolvable[];
+	/**
+	 * Cooldown del comando (en segundos)
+	 */
 	cooldown?: number;
-	enabled?: boolean;
-	devsOnly?: boolean;
-	example?: string;
-	execute: (options: IExecuteOptions) => any;
-};
+	/**
+	 * Lógica del comando
+	 * @param params Parametros del comando
+	 */
+	execute: (params: IExecuteParams) => Promise<void>;
+}

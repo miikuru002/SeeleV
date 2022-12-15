@@ -1,9 +1,9 @@
-import { Event } from "../structures";
-import { seelev } from "../index";
+import { Event } from "../../structures";
+import { seelev } from "../../index";
 
 export default new Event({
 	name: "messageDelete",
-	execute: async (message) => {
+	listener: async (message) => {
 		//valida que el msj no es de un bot
 		if (message.author?.bot) return;
 
