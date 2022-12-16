@@ -6,6 +6,7 @@ import {
 	ApplicationCommandOptionType,
 	ComponentType,
 	SelectMenuBuilder,
+	StringSelectMenuBuilder,
 } from "discord.js";
 import { embed_color } from "../../config";
 
@@ -96,9 +97,17 @@ export default new Command({
 			.setTitle(":books: Menú de ayuda:")
 			.setColor(embed_color)
 			.setDescription(
-				`**Nota:** Ahora todos mis comandos son slash-commands, para usarlos escribe \`/\` y seguidamente el comando.\
-				\nActualmente cuento con \`${client.commands.size}\` comandos y \`${subc.length} subcomandos.\`\
-				\n**Documentación:** *Próximamente...*`
+				"¡Hola!, en este menú podrás consultar mis comandos, estos están agrupados en subcomandos. Para ver los subcomandos, selecciona una categoría."
+			)
+			.addFields(
+				{
+					name: "Info:",
+					value: `Actualmente cuento con \`${client.commands.size}\` comandos y \`${subc.length}\` subcomandos.`
+				},
+				{
+					name: "Enlaces útiles:",
+					value: "*Próximamente...*"
+				}
 			)
 			.setFooter({
 				text: "Info: Este menú tiene un tiempo de vida de 2 minutos",
@@ -106,7 +115,7 @@ export default new Command({
 
 		//crea el menu
 		const help_menu = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-			new SelectMenuBuilder()
+			new StringSelectMenuBuilder()
 				.setCustomId("help")
 				.setPlaceholder("Click para ver mis comandos")
 				.addOptions([
