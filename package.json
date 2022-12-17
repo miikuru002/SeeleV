@@ -4,7 +4,7 @@
   "description": "Bot multifuncional para Discord",
   "main": "index.js",
   "engines": {
-    "node": "18.9.x",
+    "node": "18.x.x",
     "npm": "8.x"
   },
   "scripts": {
@@ -32,7 +32,6 @@
   "dependencies": {
     "@vitalets/google-translate-api": "^8.0.0",
     "axios": "^1.1.2",
-    "canvas": "^2.9.1",
     "chalk": "^4.1.2",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.0",
